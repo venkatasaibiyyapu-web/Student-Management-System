@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Student</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Update Student Details</h1>
+
+    <form action="/update_student" method="POST">
+
+        <label>Enter Roll Number:</label>
+        <input type="text" name="roll" required>
+
+        <br><br>
+
+        <label>New Roll Number:</label>
+        <input type="text" name="new_roll" required>
+        
+        <br><br>
+
+        <br><br>
+
+        <label>New Student Name:</label>
+        <input type="text" name="name" required>
+
+        <br><br>
+
+        <label>New Email:</label>
+        <input type="email" name="email" required>
+
+        <br><br>
+
+        <label>New Department:</label>
+        <input type="text" name="department" required>
+
+        <br><br>
+
+        <button type="submit">Update Student</button>
+
+    </form>
+
+    <br><br>
+
+    <a href="/">Back to Home</a>
+
+</body>
+</html>

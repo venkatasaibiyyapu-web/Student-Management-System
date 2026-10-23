@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="home-page">
+
+    <!-- Navigation -->
+    <nav class="top-navbar">
+        <div class="nav-brand">🎓 Student Management System</div>
+        <div class="nav-links">
+            <a href="/">🏠 Home</a>
+            <a href="/add_student">➕ Add Student</a>
+            <a href="/view_students">📋 View Students</a>
+            <a href="/search_student">🔍 Search Student</a>
+        </div>
+    </nav>
+
+    <main class="home-container">
+
+        <!-- Welcome Banner -->
+        <section class="welcome-banner">
+            <div>
+                <h1>Welcome to Student Management System</h1>
+                <p>Manage student records easily with add, view,
+                   search, update and delete operations.</p>
+            </div>
+            <div class="welcome-icon">🎓</div>
+        </section>
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-icon">👥</div>
+                <div>
+                    <h3>Total Students</h3>
+                    <h2>{{ total_students }}</h2>
+                </div>
+            </div>
+
+            <div class="stat-card stat-green">
+                <div class="stat-icon">📚</div>
+                <div>
+                    <h3>Departments</h3>
+                    <h2>{{ department_stats | length }}</h2>
+                </div>
+            </div>
+
+            <div class="stat-card stat-pink">
+                <div class="stat-icon">📊</div>
+                <div>
+                    <h3>Student Records</h3>
+                    <h2>{{ total_students }}</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- Management Actions -->
+        <section class="home-panel">
+            <h2>Student Management</h2>
+            <p class="section-description">
+                Perform different operations on student records
+            </p>
+
+            <div class="action-grid">
+                <a href="/add_student" class="action-card action-add">
+                    <span class="action-icon">➕</span>
+                    <h3>Add Student</h3>
+                    <p>Register a new student</p>
+                    <span class="action-arrow">→</span>
+                </a>
+
+                <a href="/view_students" class="action-card action-view">
+                    <span class="action-icon">📋</span>
+                    <h3>View Students</h3>
+                    <p>View all student records</p>
+                    <span class="action-arrow">→</span>
+                </a>
+
+                <a href="/search_student" class="action-card action-search">
+                    <span class="action-icon">🔍</span>
+                    <h3>Search Student</h3>
+                    <p>Search by roll number</p>
+                    <span class="action-arrow">→</span>
+                </a>
+
+                <a href="/update_student" class="action-card action-update">
+                    <span class="action-icon">✏️</span>
+                    <h3>Update Student</h3>
+                    <p>Modify student information</p>
+                    <span class="action-arrow">→</span>
+                </a>
+
+                <a href="/delete_student" class="action-card action-delete">
+                    <span class="action-icon">🗑️</span>
+                    <h3>Delete Student</h3>
+                    <p>Remove student records</p>
+                    <span class="action-arrow">→</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Department Statistics -->
+        <section class="home-panel">
+            <h2>Department-wise Student Statistics</h2>
+            <p class="section-description">
+                Visual representation of students in each department
+            </p>
+
+            <div class="charts-grid">
+
+                <!-- Bar Chart -->
+                <div class="chart-panel">
+                    <h3>📊 Department-wise Student Count</h3>
+                    <div class="chart-area">
+                        <canvas id="departmentBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Pie Chart -->
+                <div class="chart-panel">
+                    <h3>🥧 Department-wise Student Distribution</h3>
+                    <div class="chart-area">
+                        <canvas id="departmentPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Department Counts -->
+        <section class="home-panel">
+            <h2>Department Summary</h2>
+            <div class="department-grid">
+                {% for department in department_stats %}
+                <div class="department-card">
+                    <span>{{ department["department"] }}</span>
+                    <strong>{{ department["total"] }} Students</strong>
+                </div>
+                {% else %}
+                <p>No student records available yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="home-footer">
+        Student Management System | Python Flask Project
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="department-data" type="application/json">
+[
+    {% for department in department_stats %}
+    {
+        "department": {{ department["department"] | tojson }},
+        "total": {{ department["total"] | int }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+    </script>
+
+    <script>
+        const departmentData = JSON.parse(
+            document.getElementById("department-data").textContent
+        );
+
+        const departmentLabels = departmentData.map(
+            item => item.department
+        );
+
+        const departmentCounts = departmentData.map(
+            item => item.total
+        );
+
+        const chartColors = [
+            "#2585f9",
+            "#23b984",
+            "#ffb638",
+            "#f04d67",
+            "#8050d8",
+            "#18a5b8",
+            "#ec76bc"
+        ];
+
+        const barCanvas = document.getElementById("departmentBarChart");
+        const pieCanvas = document.getElementById("departmentPieChart");
+
+        if (typeof Chart !== "undefined") {
+            new Chart(barCanvas, {
+                type: "bar",
+                data: {
+                    labels: departmentLabels,
+                    datasets: [{
+                        label: "Students",
+                        data: departmentCounts,
+                        backgroundColor: departmentLabels.map(
+                            (_, index) => chartColors[index % chartColors.length]
+                        ),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
+            });
+
+            new Chart(pieCanvas, {
+                type: "doughnut",
+                data: {
+                    labels: departmentLabels,
+                    datasets: [{
+                        data: departmentCounts,
+                        backgroundColor: departmentLabels.map(
+                            (_, index) => chartColors[index % chartColors.length]
+                        ),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "58%",
+                    plugins: {
+                        legend: { position: "right" }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html> 
